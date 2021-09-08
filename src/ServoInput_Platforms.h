@@ -29,7 +29,7 @@
 
 #include <Arduino.h>
 
-#if defined(__AVR__) || defined(TEENSYDUINO)
+#if defined(__AVR__)
 
 #define IO_REG_TYPE                     uint8_t
 #define PIN_TO_BASEREG(pin)             (portInputRegister(digitalPinToPort(pin)))
@@ -47,6 +47,21 @@
 #elif defined(__SAMD21G18A__)  // Arduino MKR boards, Arm Cortex-M0 SAMD21
 
 #define IO_REG_TYPE                     uint32_t
+#define PIN_TO_BASEREG(pin)             (portInputRegister(digitalPinToPort(pin)))
+#define PIN_TO_BITMASK(pin)             (digitalPinToBitMask(pin))
+#define DIRECT_PIN_READ(base, mask)     (((*(base)) & (mask)) ? 1 : 0)
+
+#elif defined(TEENSYDUINO)
+
+#if defined(__arm__) && defined(KINETISK)  // 32 bit Teensy 3.x
+#define IO_REG_TYPE                     uint8_t
+#elif defined(__arm__) && defined(KINETISL)  // 32 bit Teensy-LC
+#define IO_REG_TYPE                     uint8_t
+#elif defined(__arm__) && \
+  (defined(__IMXRT1052__) || defined(__IMXRT1062__))  // 32 bit Teensy 4.x
+#define IO_REG_TYPE                     uint32_t
+#endif
+
 #define PIN_TO_BASEREG(pin)             (portInputRegister(digitalPinToPort(pin)))
 #define PIN_TO_BITMASK(pin)             (digitalPinToBitMask(pin))
 #define DIRECT_PIN_READ(base, mask)     (((*(base)) & (mask)) ? 1 : 0)
